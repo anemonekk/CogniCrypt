@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+                  point="org.eclipse.ui.menus">
+               <menuContribution
+                     allPopups="false"
+                     locationURI="popup:de.cognicrypt.core.menu">
+                  <command
+                        commandId="de.cognicrypt.order.diagram.runorderdiagram"
+                        icon="platform:/plugin/de.cognicrypt.core/icons/cognicrypt-extension.png"
+                        label="Run CogniCrypt Order Diagram"
+                        style="push">
+                  </command>
+               </menuContribution>
+            </extension>
+            <extension
+                  point="org.eclipse.ui.commands">
+               <command
+                     defaultHandler="de.cognicrypt.diagram.order.actions.RunOrderDiagramHandler"
+                     id="de.cognicrypt.order.diagram.runorderdiagram"
+                     name="RunOrderDiagram">
+               </command>
+            </extension>
+            <extension
+                  point="org.eclipse.ui.menus">
+               <menuContribution
+                     allPopups="false"
+                     locationURI="toolbar:org.eclipse.ui.main.toolbar">
+                  <toolbar
+                        id="de.cognicrypt.toolbar"
+                        label="CogniCrypt">
+                     <command
+                           commandId="de.cognicrypt.order.diagram.runorderdiagram"
+                           icon="platform:/plugin/de.cognicrypt.core/icons/cognicrypt-extension.png"
+                           label="RunOrderDiagramToolBar"
+                           style="push"
+                           tooltip="Generate Order Diagram New">
+                     </command>
+                  </toolbar>
+               </menuContribution>
+            </extension>
+</plugin>
