@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -60,6 +61,7 @@ import de.darmstadt.tu.crossing.statemachine.TransitionEdge;
 public class PageForOrderDiagramWizard extends WizardPage {
 
 	TreeViewer treeViewer;
+	private String ruleName = null;
 	
 	/**
      * Serializations options.
@@ -90,106 +92,52 @@ public class PageForOrderDiagramWizard extends WizardPage {
 		container.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 		container.setLayout(new GridLayout(2, false));
 		
-		String cryslFileName = "C";
 		String cookie = "Cookie.crysl";
-		String cryslFileName2 = "Other2.crysl";
-		String cryslFileName3 = "Other3.crysl";
 		ArrayList<String> cryslFiles = new ArrayList<String>();
 		cryslFiles.add(cookie);
-		cryslFiles.add(cryslFileName2);
-		cryslFiles.add(cryslFileName3);
-		final org.eclipse.swt.widgets.List fileList = new org.eclipse.swt.widgets.List(container, SWT.MULTI | SWT.BORDER);
+		
+		File folder = new File("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src");
+        File[] listOfFiles = folder.listFiles();
+
+        for (int i = 0; i < listOfFiles.length; i++) {
+          if (listOfFiles[i].isFile()) {
+            cryslFiles.add(listOfFiles[i].getName());
+          } else if (listOfFiles[i].isDirectory()) {
+            System.out.println("Directory " + listOfFiles[i].getName());
+          }
+        }
+        
+        final org.eclipse.swt.widgets.List fileList = new org.eclipse.swt.widgets.List(container, SWT.MULTI | SWT.BORDER);
 		for(String f : cryslFiles) {
 			fileList.add(f);
 		}
-		
+        
 		// file selection
 		fileList.addListener(SWT.Selection, new Listener() {
+			EObject self = null;
             @Override
             public void handleEvent(Event arg0) {
-                if(fileList.getSelectionCount() > 0)
-                    System.out.println(Arrays.toString(fileList.getSelection()));
-                // here logic to select rule, later exchange by less hardcoded list traversal
-                // better use Map interface?
-               /* switch(cryslFileName) {
-                case "Cookie.crysl":
-                	EObject self = null;
-                	System.out.println("case Cookie");
-            		try {
-            			self = giveEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\Cookie.crysl");
+                if(fileList.getSelectionCount() > 0) {
+                    String selectedObject = (String) Array.get(fileList.getSelection(), 0);
+                    int endIndex = selectedObject.indexOf(".");
+                    ruleName = (String) selectedObject.subSequence(0, endIndex);
+                    String cryslPath = "C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\" + selectedObject;
+                    
+                    try {
+            			self = provideCrySLEObject(cryslPath);
             		} catch (MalformedURLException e2) {
-            			// TODO Auto-generated catch block
             			e2.printStackTrace();
             		}
             		System.out.println(self);
-            		break;
-                case "Other.crysl":
-                	System.out.println("other");
-                	break;
-                default:
-                	System.out.println("default");
-                	break;
-                }*/
-                
-                EObject self = null;
-                /*System.out.println("selected " + Arrays.toString(fileList.getSelection()));
-                if(Arrays.toString(fileList.getSelection()).equals("[Cookie.crysl]")) {
-                	System.out.println("case Cookie");
-            		try {
-            			self = giveEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\Cookie.crysl");
-            		} catch (MalformedURLException e2) {
-            			// TODO Auto-generated catch block
-            			e2.printStackTrace();
-            		}
-            		System.out.println(self);
-                }*/
-                
-                File folder = new File("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src");
-                File[] listOfFiles = folder.listFiles();
-
-                for (int i = 0; i < listOfFiles.length; i++) {
-                  if (listOfFiles[i].isFile()) {
-                    System.out.println("File " + listOfFiles[i].getName());
-                  } else if (listOfFiles[i].isDirectory()) {
-                    System.out.println("Directory " + listOfFiles[i].getName());
-                  }
                 }
-                
-                for(String s : cryslFiles) {
-                	if(s == "Cookie.crysl") {
-                    	System.out.println("case Cookie");
-                		try {
-                			self = provideCrySLEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\Cookie.crysl");
-                			//self = provideCrySLEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\GCMParameterSpec.crysl");
-                			//self = provideCrySLEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\KeyPairGenerator.crysl");
-                			//self = provideCrySLEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\KeyGenerator.crysl");
-                			//self = provideCrySLEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\KeyPair.crysl");
-                			//self = provideCrySLEObject("C:\\Users\\T440s\\git\\Crypto-API-Rules\\JavaCryptographicArchitecture\\src\\Key.crysl");
-                		} catch (MalformedURLException e2) {
-                			e2.printStackTrace();
-                		}
-                		System.out.println(self);
-                	}
-                }
-                
+             
                 //handle generation for current eObject, if click on Generate button
-                generateStatemachineDiagramXtextNewTransformationLogic(self);
+                generateStatemachineDiagramXtextNewTransformationLogic(self, ruleName);
             }
         });
-
-		/*switch (getName()) {
-			case Constants.PAGE_NAME_FOR_MODE_OF_WIZARD:
-				setCompositeChoiceForModeOfWizard(new CompositeChoiceForModeOfWizard(container, SWT.NONE, this));
-				break;
-			case Constants.PAGE_NAME_FOR_LINK_ANSWERS:
-				setCompositeToHoldGranularUIElements(new CompositeToHoldGranularUIElements(container, getName()));
-				// fill the available space on the with the big composite
-				getCompositeToHoldGranularUIElements().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-				break;
-		}*/
 	}
 	
-	public void generateStatemachineDiagramXtextNewTransformationLogic(EObject self) {
+	public void generateStatemachineDiagramXtextNewTransformationLogic(EObject self, String ruleName) {
 		final Domainmodel dm = (Domainmodel) self;
 		Expression order = dm.getOrder();
     	
@@ -211,12 +159,6 @@ public class PageForOrderDiagramWizard extends WizardPage {
 		ResourceSet resourceSet = new ResourceSetImpl(); 
 		StatemachinePackage.eINSTANCE.eClass();
 		
-		//Resource resource = createAndAddResourcePlatformResURI("CryptSL\\test_stm\\test13ms.statemachine", new String[] {"statemachine"}, set);
-		//Resource resource = createAndAddResourcePlatformResURI("/de.darmstadt.tu.crossing.CrySL/src/test13ms.statemachine", new String[] {"statemachine"}, set); //same, resource does not exist
-		//Resource resource = createAndAddResourcePlatformResURI("/de.cognicrypt.integrator.task/src/test13ms.statemachine", new String[] {"statemachine"}, set);
-		//Resource resource = createAndAddResourcePlatformResURI("/de.darmstadt.tu.crossing.CrySL/src/test13ms.statemachine", new String[] {"statemachine"}, set);
-		// provide place holder to insert name of rule here. Need to give via the selection in the wizard, store in variable
-		String ruleName = "Cookie";
 		// provide file ending as parameter?
 		String path = "/de.cognicrypt.diagram.order/output/" + ruleName + ".statemachine";
 		Resource resource = createAndAddXtextResourcePlatformPluginURI(path, /*new String[] {"statemachine"},*/ resourceSet);
@@ -296,8 +238,8 @@ public class PageForOrderDiagramWizard extends WizardPage {
 
          // provide a relative path here?
          // provide place holder to insert name of rule
-         String path2 = "C:\\Users\\T440s\\git\\CogniCrypt\\plugins\\de.cognicrypt.diagram.order\\output\\" + ruleName + ".statemachine";
-         File file = new File(path2); //path not working
+         String outputPath = "C:\\Users\\T440s\\git\\CogniCrypt\\plugins\\de.cognicrypt.diagram.order\\output\\" + ruleName + ".statemachine";
+         File file = new File(outputPath); 
          
          try (OutputStream fileOutputStream = new FileOutputStream(file)) {
              try {
